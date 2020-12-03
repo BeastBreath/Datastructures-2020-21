@@ -84,9 +84,10 @@ int main () {
 	//cout << "DSFSD" << endl;
 	
 	if(rehashCheck(hashTable, index) == true) {
+	  cout << "getting rehashed" << endl;
 	  rehash(hashTable, size);
 	}
-	//cout << "S" << endl;
+	cout << "S" << endl;
       }
       else if(strcmp(input, "R") == 0) {
 	/*int numberOfStudents;
@@ -113,10 +114,10 @@ int main () {
 
     else if(strcmp(input, "DELETE") == 0) {
       int ID;
-      cout << "What is the ID of the lucky student getting wiped from the school?";
+      cout << "What is the ID of the lucky student getting wiped from the school? ";
       cin >> ID;
       cin.get();
-      int index = hashFunction(index, size);
+      int index = hashFunction(ID, size);
       DELETE(hashTable, index, ID);
     }
     else if(strcmp(input, "QUIT") == 0) {
@@ -146,10 +147,15 @@ void ADD(int index, node** &hashTable, student* newStudent) {
   }
 
   else {
+    studentNode->next = hashTable[index];
+    hashTable[index] = studentNode;
+    
+
+    /*
     while(current->next != NULL) {
       current = current->next;
     }
-    current->next = studentNode;
+    current->next = studentNode;*/
   }
   cout << "Success" << index << endl;
 }
@@ -164,7 +170,6 @@ bool rehashCheck(node** &hashTable, int index) {
     counter++;
     cout << "1S" << endl;
   }
-  counter++;
   cout << "S" << endl;
   if (counter < 3) {
     return false;
@@ -200,7 +205,7 @@ void rehash(node** &hashTable, int &size) {
   node* current;
   node** newHashTable = new node*[newSize];
   for(int i = 0; i < newSize; i++) {
-    newHashTable[i] = new node();
+    newHashTable[i] = NULL;
   }
 
   for (int i = 0; i < size; i++) {
@@ -221,6 +226,8 @@ void DELETE(node** &hashTable, int index, int ID) {
   node* previous = NULL;
   
   if(current == NULL) {
+    cout << "INDEX: " << index << endl;
+    cout << "NO STUDENTS IN THIS INDEX" << endl;
     cout << "STUDENT NOT FOUND" << endl;
     return;
   }
