@@ -136,14 +136,13 @@ int hashFunction (int ID, int size) {
   return index;
 }
 
-void ADD(
-	 int index, node** &hashTable, student* newStudent) {
+void ADD(int index, node** &hashTable, student* newStudent) {
   node* current = hashTable[index];
   node* studentNode =  new node();
-  studentNode->next == NULL;
+  studentNode->next = NULL;
   studentNode->data = newStudent;
   if(current == NULL) {
-    current = studentNode;
+    hashTable[index] = studentNode;
   }
 
   else {
@@ -152,6 +151,7 @@ void ADD(
     }
     current->next = studentNode;
   }
+  cout << "Success" << index << endl;
 }
 
 
@@ -177,6 +177,7 @@ bool rehashCheck(node** &hashTable, int index) {
 void print(node** &hashTable, int size) {
   cout << "S" << endl;
   for (int i = 0; i < size; i++) {
+    cout << "I: " << i << endl;
     node* current = hashTable[i];
     while(current != NULL) {
       cout << "SDF" << endl;

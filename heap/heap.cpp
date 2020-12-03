@@ -10,7 +10,7 @@ void swap(int *HEAP, int firstIndex, int secondIndex);
 int getParentPosition(int position);
 int getLeftPosition(int position);
 int getRightPosition(int position);
-bool isEnd(int position, int size);
+bool isEnd(int *HEAP, int position, int size);
 void maxHeapify(int *HEAP, int position, int size);
 void insert(int* HEAP, int &size, int element);
 void print(int *HEAP, int size);
@@ -119,8 +119,13 @@ int getRightPosition(int position) {
   return rightPosition;
 }
 
-bool isEnd(int position, int size) {
-  if(position >= size/2) {
+bool isEnd(int *HEAP, int position, int size) {
+  int left = getLeftPosition(position);
+  int right = getRightPosition(position);
+  if(left > size || right > size){
+    return true;
+  }
+  if(HEAP[right] == 0 && HEAP[left] == 0) {
     return true;
   }
   return false; 
@@ -143,18 +148,35 @@ void swap(int *HEAP, int firstIndex, int secondIndex) {
 }
 
 void maxHeapify(int *Heap, int position, int size) {
-  if(isEnd(size, position)) {
+  /*if(isEnd(Heap, size, position)) {
+#ifdef DEBUG
+    cout << "First in max Heapify" << endl;
+#endif
+
     return;
-  }
+  }*/
 
   if (Heap[position] < Heap[getLeftPosition(position)] ||
       Heap[position] < Heap[getRightPosition(position)]) {
+
+#ifdef DEBUG
+    cout << "Second in Max Heapify" << endl;
+#endif
+    
     
     if (Heap[getLeftPosition(position)] > Heap[getRightPosition(position)]) { 
+#ifdef DEBUG
+      cout << "Third in Max Heapify" << endl;
+#endif
+      
       swap(Heap, position, getLeftPosition(position)); 
       maxHeapify(Heap, getLeftPosition(position), size); 
     } 
-    else{ 
+    else{
+#ifdef DEBUG
+      cout << "Fourth in Max Heapify" << endl;
+#endif
+      
       swap(Heap, position, getRightPosition(position)); 
       maxHeapify(Heap, getRightPosition(position), size);
     } 
@@ -215,7 +237,7 @@ void print(int *HEAP, int size) {
     }
   }
 
-  else if(input == 20) {
+  else if(input == 2) {
     bool returnl;
     for (int i = 1; i <= size; i++) { 
       returnl = false;
