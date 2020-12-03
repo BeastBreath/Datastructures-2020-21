@@ -112,7 +112,8 @@ int main() {
     }
     //If user wants to quit
     else if(strcmp(input, "QUIT") == 0 || strcmp(input, "quit") == 0) {
-      for (int i = 0; i < size; i++) {
+      int constSize = size;
+      for (int i = 0; i < constSize - 1; i++) {
 	cout << HEAP[1] << ' ';
 	extractElement(HEAP, HEAP[1], size);
 	size--;
