@@ -1,3 +1,9 @@
+/*
+By: Nividh Singh
+Date: 12/2/20
+This function uses a hashTable to store students
+*/
+
 #include <iostream>
 #include <cstring>
 #include <fstream>
