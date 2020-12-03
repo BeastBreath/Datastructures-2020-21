@@ -11,6 +11,10 @@ struct node {
     next = NULL;
     data = NULL;
   }
+  ~node() {
+    delete next;
+    delete data;
+  }
 };
 
 int hashFunction(int ID, int size);
@@ -221,7 +225,8 @@ void rehash(node** &hashTable, int &size) {
 }
 
 void DELETE(node** &hashTable, int index, int ID) {
-
+  cout << "ASD" << endl;
+  
   node* current = hashTable[index];
   node* previous = NULL;
   
@@ -232,7 +237,8 @@ void DELETE(node** &hashTable, int index, int ID) {
     return;
   }
   
-  while(current->next != NULL) {
+  while(current != NULL) {
+    cout << "DDD" << endl;
     if(current->data->getStudentID() == ID) {
       cout << "Are you sure you want to delete this student (Y for yes and N for no):" << endl;
       printStudent(current->data);
@@ -251,6 +257,9 @@ void DELETE(node** &hashTable, int index, int ID) {
 	previous->next = temp;
       }
       cout << "The student has been removed" << endl;
+      return;
     }
+    current = current->next;
+    previous = previous->next;
   }
 }
