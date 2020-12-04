@@ -45,7 +45,7 @@ void print(node* root, int size);
 
 //Main method
 int main() {
-  cout << "Welcome to Binary Search Tree. Your commands are ADD, DELETE, SEARCH, PRINT, and QUIT" << endl;
+  cout << "Welcome to Binary Search Tree. Your commands are ADD, DELETE, SEARCH, PRINT, FILE, and QUIT" << endl;
 
   //Variables for the head node pointer, the input, and if the program is going
   node* head = NULL;
@@ -127,6 +127,25 @@ int main() {
     //If the user wants to quit, we make going false and end the program
     else if(strcmp(input, "QUIT") == 0) {
       going = false;
+    }
+    //If user wants to add from file 
+    else if(strcmp(input, "FILE") == 0 || strcmp(input, "file") == 0) {
+      int number;
+      cout << "What is the file name? " << endl;
+      char fileName[100];
+      cin.get(fileName, 100);
+      cin.get();
+      //Sets up file
+      ifstream file;
+      file.open(fileName);
+      //Goes through the file and inserts everything into the heap
+      while (file >> number) {
+	insert(head, number);
+      }
+      file.close();
+    }
+    else {
+      cout << "ELEMENT NOT FOUND" << endl;
     }
   }
 }
