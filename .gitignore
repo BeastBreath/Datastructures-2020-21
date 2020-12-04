@@ -2,3 +2,4 @@
 *.cpp~
 *.h~
 *.stackdump
+heap/.#heap.cpp
