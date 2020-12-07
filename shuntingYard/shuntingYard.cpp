@@ -89,7 +89,10 @@ int main() {
 void getInput() {
   char* input = new char[100];
   cin.get(input, 100);
-int length = strlen(input);
+  int length = strlen(input);
+  for (int i = 0; input[i] != '\0'; i++) {
+    while(input
+  }
 }
 
 
