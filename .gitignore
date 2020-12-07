@@ -3,3 +3,4 @@
 *.h~
 *.stackdump
 heap/.#heap.cpp
+shuntingYard/.#shuntingYard.cpp
