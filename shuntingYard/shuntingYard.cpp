@@ -110,7 +110,7 @@ int evaluate(binaryNode* binaryTree);
 int main() {
   cout << "Welcome to Shunting Yard. In the year 1829, Scotland Yard was made the headquarters for London's Police. The computer science community tried to copy this. At the time, computer scientists were really jelous of people who worked with trains, so they decided to name it shunting yard, after the train shunting yards. Ofcourse, these computer scientists weren't even born yet, so this whole story is made up because I have way too much time on my hand" << endl;
   cout << "Your commands are: CHANGE INFIX POSTFIX PREFIX EVALUATE HELP QUIT" << endl;
-  cout << "Please enter your original function in infix notation" << endl;
+  cout << "Please enter your original function in infix notation. All numbers and operators should be seperated with spaces" << endl;
 
   //Setting up stacks and queues
   stackNode* stack = NULL;
