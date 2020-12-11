@@ -1,5 +1,7 @@
 #include <iostream>
 #include <string.h>
+#include <fstream>
+
 
 using namespace std;
 
@@ -33,69 +35,71 @@ bool getColor(node* current);//Gets the color of a node
 node* getSibling(node*current);//Gets a sibling of a node
 node* getUncle(node* current);//Gets an uncle of a node
 void print(node* head, int size);//Prints the tree
-void fixTree(node* &head, int element);//Fixes the tree (this calls insert and runs through the cases)
+void fixTree(node* &head, node* current);//Fixes the tree (this calls insert and runs through the cases)
 
 //main function
 int main() {
   //Node pointer for the top
   node* head = NULL;
   
-  fixTree(head, 5);
-  print(head, 0);
-  cout << "D" << endl;
-  fixTree(head, 9);
-  print(head, 0);
-  cout << "D" << endl;
-  fixTree(head, 3);
-  print(head, 0);
-  cout << "D" << endl;
-  fixTree(head, 1);
-  print(head, 0);
-  cout << "D" << endl;
-  /*fixTree(head, 2);
-  print(head, 0);
-  cout << "D" << endl;
-  fixTree(head, 6);
-  print(head, 0);
-  cout << "D" << endl;
-  fixTree(head, 20);
-  print(head, 0);
-  fixTree(head, 54);
-  print(head, 0);
-  cout << "D" << endl;
-  fixTree(head, 1);
-  print(head, 0);
-  cout << "D" << endl;
-  fixTree(head, 523);
-  print(head, 0);
-  cout << "D" << endl;
-  fixTree(head, 13);
-  print(head, 0);
-  fixTree(head, 33);
-  print(head, 0);*/
-  
+  char input[20];
+  while(true) {
+    cout << "> ";
+    cin.get(input, 20);
+    cin.get();
+    if(strcmp(input, "ADD") == 0) {
+      cout << "Enter any number in the relm of integers (0-2^31) to be added to the tree: ";
+      int newNumber;
+      cin >> newNumber;
+      cin.get();
+      fixTree(head, callInsert(head, newNumber));
+    }
+    else if(strcmp(input, "PRINT") == 0) {
+      print(head, 0);
+    }
+    else if(strcmp(input, "READ") == 0) {
+      int number;
+      cout << "What is the file name? " << endl;
+      char fileName[100];
+      cin.get(fileName, 100);
+      cin.get();
+      //Sets up file
+      ifstream file;
+      file.open(fileName);
+      //Goes through the file and inserts everything into the heap
+      while (file >> number) {
+	fixTree(head, callInsert(head, number));
+      }
+      file.close();
+    }
+  }
 }
 
-void fixTree(node* &head, int element) {
-  node* current = callInsert(head, element);
-
+void fixTree(node* &head, node* current) {
+  
   //If our node is the first top node 
   if(head == current) {
     current->color = BLACK;
     return;
   }
-  
+
+  cout << "CASE PRE" << endl;
   //Parent and uncle are both red
-  if(current->parent->color == RED && getUncle(current)->color == RED) {
+  if(getColor(current->parent) == RED && getColor(getUncle(current)) == RED) {
+    cout << "IN PRE" << endl;
     current->parent->color = BLACK;
     getUncle(current)->color = BLACK;
     current->parent->parent->color = RED;
-    
-    current = current->parent->parent; 
+    cout << "GOING INTO FIXTREE" << endl;
+    //current = current->parent->parent
+    fixTree(head, current->parent->parent);
+    return;
   }
-  
+
+  cout << "GOING INTO CASES" << endl;
   //Uncle is black and parent is red
   if((getColor(current->parent) == RED) && (getColor(getUncle(current)) == BLACK)) {
+    cout << "IN CASES" << endl;
     //Triangle
     /*
            G(B)
@@ -103,6 +107,7 @@ void fixTree(node* &head, int element) {
            C(R)
      */
     if(current->data >= current->parent->data && current->parent->parent->data >= current->parent->data) {
+      cout << "CASE: 0" << endl;
       node* parent = current->parent;
       node* grandparent = current->parent->parent;
 
@@ -111,7 +116,9 @@ void fixTree(node* &head, int element) {
       parent->right = NULL;
       parent->parent = current;
       current->parent = grandparent;
-      current = parent;
+      //current = parent;
+      fixTree(head, parent);
+      return;
     }
     /*
       G(B)
@@ -120,6 +127,7 @@ void fixTree(node* &head, int element) {
      */
     
     else if(current->data < current->parent->data && current->parent->parent->data < current->parent->data) {
+      cout << "CASE: 1" << endl;
       node* parent = current->parent;
       node* grandparent = current->parent->parent;
       
@@ -128,7 +136,9 @@ void fixTree(node* &head, int element) {
       parent->left = NULL;
       parent->parent = current;
       current->parent = grandparent;
-      current = parent;
+      //current = parent;
+      fixTree(head, parent);
+      return;
     }
 
     /*
@@ -137,13 +147,16 @@ void fixTree(node* &head, int element) {
 	         C(R)
 
      */
-    if(current >= current->parent && current >= current->parent->parent) {
+    if(current->data >= current->parent->data && current->data >= current->parent->parent->data) {
+      cout << "CASE 2" << endl;
       node* siblingD = getSibling(current);
       node* grandparentB = current->parent->parent;
       node* parentA = current->parent;
       parentA->left = grandparentB;
       grandparentB->right = siblingD;
-      siblingD->parent = grandparentB;
+      if(siblingD != NULL) {
+	siblingD->parent = grandparentB;
+      }
       if(grandparentB == head) {
 	head = parentA;
 	parentA->parent = NULL;
@@ -170,19 +183,28 @@ void fixTree(node* &head, int element) {
       C(R)
 
      */
-    if(current < current->parent && current < current->parent->parent) {
+    if(current->data < current->parent->data && current->data < current->parent->parent->data) {
+      cout << "CASE 3" << endl;
       node* siblingD = getSibling(current);
       node* grandparentB = current->parent->parent;
       node* parentA = current->parent;
+      cout << "CASE 3a" << endl;
       parentA->right = grandparentB;
+      cout << "Case 3a1" << endl;
       grandparentB->left = siblingD;
-      siblingD->parent = grandparentB;
+      cout << "Case 3a2" << endl;
+      if(siblingD != NULL) {
+	siblingD->parent = grandparentB;
+      }
+      cout << "CASE 3b" << endl;
       if(grandparentB == head) {
+	cout << "CASE 3c" << endl;
         head = parentA;
         parentA->parent = NULL;
         grandparentB->parent = parentA;
       }
       else {
+	cout << "CASE 3d" << endl;
         parentA->parent = grandparentB->parent;
         grandparentB->parent = parentA;
         node* greatGrandparent = parentA->parent;
