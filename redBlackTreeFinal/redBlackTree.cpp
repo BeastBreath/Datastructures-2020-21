@@ -9,6 +9,7 @@ using namespace std;
 #define LEFT 2
 #define COUNT 10
 
+//Node struct
 struct node {
   //node* left, right, parent;
   node* left;
@@ -25,20 +26,54 @@ struct node {
   }
 };
 
-node* insert (node* &head, int element, int side);
-node* callInsert (node* &head, int element);
-bool getColor(node* current);
-node* getSibling(node*current);
-node* getUncle(node* current);
-void print(node* head, int size);
-void fixTree(node* &head, int element);
+//Prototypes
+node* insert (node* &head, int element, int side);//Inserts a new element without fixing
+node* callInsert (node* &head, int element);//Calls insert function
+bool getColor(node* current);//Gets the color of a node
+node* getSibling(node*current);//Gets a sibling of a node
+node* getUncle(node* current);//Gets an uncle of a node
+void print(node* head, int size);//Prints the tree
+void fixTree(node* &head, int element);//Fixes the tree (this calls insert and runs through the cases)
 
+//main function
 int main() {
-node* head = NULL;
- 
- fixTree(head, 1);
- print(head, 0);
- 
+  //Node pointer for the top
+  node* head = NULL;
+  
+  fixTree(head, 5);
+  print(head, 0);
+  cout << "D" << endl;
+  fixTree(head, 9);
+  print(head, 0);
+  cout << "D" << endl;
+  fixTree(head, 3);
+  print(head, 0);
+  cout << "D" << endl;
+  fixTree(head, 1);
+  print(head, 0);
+  cout << "D" << endl;
+  /*fixTree(head, 2);
+  print(head, 0);
+  cout << "D" << endl;
+  fixTree(head, 6);
+  print(head, 0);
+  cout << "D" << endl;
+  fixTree(head, 20);
+  print(head, 0);
+  fixTree(head, 54);
+  print(head, 0);
+  cout << "D" << endl;
+  fixTree(head, 1);
+  print(head, 0);
+  cout << "D" << endl;
+  fixTree(head, 523);
+  print(head, 0);
+  cout << "D" << endl;
+  fixTree(head, 13);
+  print(head, 0);
+  fixTree(head, 33);
+  print(head, 0);*/
+  
 }
 
 void fixTree(node* &head, int element) {
@@ -48,6 +83,15 @@ void fixTree(node* &head, int element) {
   if(head == current) {
     current->color = BLACK;
     return;
+  }
+  
+  //Parent and uncle are both red
+  if(current->parent->color == RED && getUncle(current)->color == RED) {
+    current->parent->color = BLACK;
+    getUncle(current)->color = BLACK;
+    current->parent->parent->color = RED;
+    
+    current = current->parent->parent; 
   }
   
   //Uncle is black and parent is red
