@@ -5,3 +5,4 @@
 heap/.#heap.cpp
 shuntingYard/.#shuntingYard.cpp
 shuntingYard/#shuntingYard.cpp#
+*.cpp#
