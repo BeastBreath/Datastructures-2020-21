@@ -43,15 +43,21 @@ node* head = NULL;
 
 void fixTree(node* &head, int element) {
   node* current = callInsert(head, element);
-  
+
+  //If our node is the first top node 
   if(head == current) {
     current->color = BLACK;
     return;
   }
-
+  
+  //Uncle is black and parent is red
   if((getColor(current->parent) == RED) && (getColor(getUncle(current)) == BLACK)) {
     //Triangle
-    
+    /*
+           G(B)
+       P(R)
+           C(R)
+     */
     if(current->data >= current->parent->data && current->parent->parent->data >= current->parent->data) {
       node* parent = current->parent;
       node* grandparent = current->parent->parent;
@@ -63,6 +69,12 @@ void fixTree(node* &head, int element) {
       current->parent = grandparent;
       current = parent;
     }
+    /*
+      G(B)
+           P(R)
+      C(R)
+     */
+    
     else if(current->data < current->parent->data && current->parent->parent->data < current->parent->data) {
       node* parent = current->parent;
       node* grandparent = current->parent->parent;
@@ -88,7 +100,7 @@ void fixTree(node* &head, int element) {
       parentA->left = grandparentB;
       grandparentB->right = siblingD;
       siblingD->parent = grandparentB;
-      if(grandParentB == head) {
+      if(grandparentB == head) {
 	head = parentA;
 	parentA->parent = NULL;
 	grandparentB->parent = parentA;
@@ -104,8 +116,42 @@ void fixTree(node* &head, int element) {
 	  greatGrandparent->left = parentA;
 	}
       }
+      parentA->color = BLACK;
+      grandparentB->color = RED;
     }
     
+    /*
+                 G (B)
+            P(R)
+      C(R)
+
+     */
+    if(current < current->parent && current < current->parent->parent) {
+      node* siblingD = getSibling(current);
+      node* grandparentB = current->parent->parent;
+      node* parentA = current->parent;
+      parentA->right = grandparentB;
+      grandparentB->left = siblingD;
+      siblingD->parent = grandparentB;
+      if(grandparentB == head) {
+        head = parentA;
+        parentA->parent = NULL;
+        grandparentB->parent = parentA;
+      }
+      else {
+        parentA->parent = grandparentB->parent;
+        grandparentB->parent = parentA;
+        node* greatGrandparent = parentA->parent;
+        if(parentA->data < greatGrandparent->data) {
+          greatGrandparent->left = parentA;
+        }
+        else {
+          greatGrandparent->right = parentA;
+        }
+      }
+      parentA->color = BLACK;
+      grandparentB->color = RED;
+    }    
   }
 }
 
