@@ -1,3 +1,15 @@
+/*
+  Red-Black Tree
+  By: Nividh Singh
+  Date: 12/11/20
+
+  This program is a self balancing BST
+  Video used for reference: https://www.youtube.com/watch?v=5IBxA-bZZH8&list=PL9xmBV_5YoZNqDI8qfOZgzbqahCUmUEin&index=3
+*/
+
+
+
+
 #include <iostream>
 #include <string.h>
 #include <fstream>
@@ -5,6 +17,7 @@
 
 using namespace std;
 
+//Constants
 #define BLACK true
 #define RED false
 #define RIGHT 1
@@ -13,7 +26,6 @@ using namespace std;
 
 //Node struct
 struct node {
-  //node* left, right, parent;
   node* left;
   node* right;
   node* parent;
@@ -41,12 +53,14 @@ void fixTree(node* &head, node* current);//Fixes the tree (this calls insert and
 int main() {
   //Node pointer for the top
   node* head = NULL;
-  
+
+  //Loop for the program to keep going
   char input[20];
   while(true) {
     cout << "> ";
     cin.get(input, 20);
     cin.get();
+    //If the user says add, then we get an input and we simply add it to our binary tree
     if(strcmp(input, "ADD") == 0) {
       cout << "Enter any number in the relm of integers (0-2^31) to be added to the tree: ";
       int newNumber;
@@ -54,9 +68,11 @@ int main() {
       cin.get();
       fixTree(head, callInsert(head, newNumber));
     }
+    //If the user says print, we print
     else if(strcmp(input, "PRINT") == 0) {
       print(head, 0);
     }
+    //If the user wants us to read from a file, we ask for the file name and read from the file, one number at a time adding to our red-black tree
     else if(strcmp(input, "READ") == 0) {
       int number;
       cout << "What is the file name? " << endl;
@@ -75,39 +91,38 @@ int main() {
   }
 }
 
+//This function fixes the tree
 void fixTree(node* &head, node* current) {
   
-  //If our node is the first top node 
+  //If our node is the first root/top/head node, we make it black 
+  //This is case 0
   if(head == current) {
     current->color = BLACK;
     return;
   }
 
-  cout << "CASE PRE" << endl;
   //Parent and uncle are both red
+  //This is case 1
   if(getColor(current->parent) == RED && getColor(getUncle(current)) == RED) {
-    cout << "IN PRE" << endl;
     current->parent->color = BLACK;
     getUncle(current)->color = BLACK;
     current->parent->parent->color = RED;
-    cout << "GOING INTO FIXTREE" << endl;
-    //current = current->parent->parent
     fixTree(head, current->parent->parent);
     return;
   }
 
-  cout << "GOING INTO CASES" << endl;
   //Uncle is black and parent is red
+  //This is case 2/3
   if((getColor(current->parent) == RED) && (getColor(getUncle(current)) == BLACK)) {
-    cout << "IN CASES" << endl;
-    //Triangle
-    /*
+
+    /*We go into this if statemenet if we form a triangle like:
            G(B)
        P(R)
            C(R)
+
+       Case 2
      */
     if(current->data >= current->parent->data && current->parent->parent->data >= current->parent->data) {
-      cout << "CASE: 0" << endl;
       node* parent = current->parent;
       node* grandparent = current->parent->parent;
 
@@ -116,18 +131,18 @@ void fixTree(node* &head, node* current) {
       parent->right = NULL;
       parent->parent = current;
       current->parent = grandparent;
-      //current = parent;
       fixTree(head, parent);
       return;
     }
-    /*
+    /*This is if the triangle is the other way around
       G(B)
            P(R)
       C(R)
+
+      Case 2
      */
     
     else if(current->data < current->parent->data && current->parent->parent->data < current->parent->data) {
-      cout << "CASE: 1" << endl;
       node* parent = current->parent;
       node* grandparent = current->parent->parent;
       
@@ -136,19 +151,21 @@ void fixTree(node* &head, node* current) {
       parent->left = NULL;
       parent->parent = current;
       current->parent = grandparent;
-      //current = parent;
       fixTree(head, parent);
       return;
     }
 
-    /*
-      G (B)
-            P(R)
-	         C(R)
 
+    /*THis is if we form a line as follows
+                 G (B)
+            P(R)
+      C(R)
+
+      Case 3
+      The letter after the variable (like the D in siblingD) is refering to the example in video linked at the very top that I used as reference 
      */
+
     if(current->data >= current->parent->data && current->data >= current->parent->parent->data) {
-      cout << "CASE 2" << endl;
       node* siblingD = getSibling(current);
       node* grandparentB = current->parent->parent;
       node* parentA = current->parent;
@@ -176,35 +193,30 @@ void fixTree(node* &head, node* current) {
       parentA->color = BLACK;
       grandparentB->color = RED;
     }
-    
     /*
-                 G (B)
+      This is if we form a line as follows
+      G (B)
             P(R)
-      C(R)
+                 C(R)
 
+       Case 3
+       The letter after the variable (like the D in siblingD) is refering to the example in video linked at the very top that I used as reference
      */
     if(current->data < current->parent->data && current->data < current->parent->parent->data) {
-      cout << "CASE 3" << endl;
       node* siblingD = getSibling(current);
       node* grandparentB = current->parent->parent;
       node* parentA = current->parent;
-      cout << "CASE 3a" << endl;
       parentA->right = grandparentB;
-      cout << "Case 3a1" << endl;
       grandparentB->left = siblingD;
-      cout << "Case 3a2" << endl;
       if(siblingD != NULL) {
 	siblingD->parent = grandparentB;
       }
-      cout << "CASE 3b" << endl;
       if(grandparentB == head) {
-	cout << "CASE 3c" << endl;
-        head = parentA;
+      head = parentA;
         parentA->parent = NULL;
         grandparentB->parent = parentA;
       }
       else {
-	cout << "CASE 3d" << endl;
         parentA->parent = grandparentB->parent;
         grandparentB->parent = parentA;
         node* greatGrandparent = parentA->parent;
@@ -222,45 +234,7 @@ void fixTree(node* &head, node* current) {
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+//This gets the color of the current node (so that everytime we don't have to check for NULL)
 bool getColor(node* current) {
   if(current == NULL) {
     return BLACK;
@@ -268,6 +242,7 @@ bool getColor(node* current) {
   return current->color;
 }
 
+//This gets the sibling of the current node
 node* getSibling(node* current) {
   node* parent = current->parent;
   if(parent->data >= current->data) {
@@ -278,6 +253,7 @@ node* getSibling(node* current) {
   }
 }
 
+//This gets the uncle of the current node
 node* getUncle(node* current) {
   if(current->parent == NULL){
     return NULL;
@@ -285,6 +261,7 @@ node* getUncle(node* current) {
   return getSibling(current->parent);
 }
 
+//This is the same print function as BST, but it also prints R or B for red or black
 void print(node *head, int space)  
 {
   //if the node pointer is null, we just return
@@ -317,6 +294,7 @@ void print(node *head, int space)
   print(head->left, space);
 }
 
+//This calls insert, so that the previous function doesn't have to figure out if they have to put left or right
 node* callInsert (node* &head, int element) {
   if(head == NULL) {
     head = new node(element);
@@ -331,25 +309,28 @@ node* callInsert (node* &head, int element) {
 }
 
 
+//Function to insert - Its built like this so we can set parent nodes easily
 node* insert (node* &head, int element, int side) {
+
+  //If the previous repititon said to go to the right side, we check the right side
   if(side == RIGHT){
-    //node* current = head->right;
-    
+    //If it is null, we change it to a new node with the element and set the parent of the new node to the parent(head)
     if(head->right == NULL) {
       head->right = new node(element);
       head->right->parent = head;
       return head->right;
     }
+    //Otherwise if we have to go to the left, we tell the next repetition to go to the left (so that the next repetition has acces to the parent function)
     else if(head->right->data >= element) {
       return insert(head->right, element, LEFT);
     }
+    //Same thing if it has to go right
     else {
       return insert(head->right, element, RIGHT);
     }
-    
   }
+  //We do the same thing if the side is left, and its self explanitory based on the previous section
   else {
-    //node* current = head->left;
     if(head->left == NULL) {
       head->left = new node(element);
       head->left->parent = head;
