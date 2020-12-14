@@ -60,7 +60,7 @@ int debug(node* head, int count);
 
 //main function
 int main() {
-  cout << "Welcome to red black tree. This is an advanced version of binary search tree because it self balances. Please enter one of the following commands: ADD READ PRINT DELETE TEST HELP QUIT" << endl;
+  cout << "Welcome to red black tree. This is an advanced version of binary search tree because it self balances. Please enter one of the following commands: ADD READ PRINT SEARCH DELETE TEST HELP QUIT" << endl;
 
   //Node pointer for the top
   node* head = NULL;
@@ -82,6 +82,19 @@ int main() {
     //If the user says print, we print
     else if(strcmp(input, "PRINT") == 0) {
       print(head, 0);
+    }
+    else if(strcmp(input, "SEARCH")==0) {
+      int element;
+      cout << "What is the number you want to search for? ";
+      cin >> element;
+      cin.get();
+      node* s = search(head, element);
+      if(s != NULL) {
+	cout << "Number found! " << endl;
+      }
+      else {
+	cout << "Number not found" << endl;
+      }
     }
     //If the user says delete, we can delete a node
     else if(strcmp(input, "DELETE") == 0) {
