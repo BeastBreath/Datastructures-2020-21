@@ -56,45 +56,14 @@ int getNumberOfChildren(node* current);
 int getSide(node* child, node* parent);
 bool deleteNode(node* current);
 void doubleBlackFix(node* &head, node* doubleBlack, bool todelete);
-
-
-int debug(node* head, int count) {
-  if(head == NULL) {
-    return count;
-  }
-  //cout << head->data << endl;
-  if(getColor(head) == BLACK) {
-    count++;
-  }
-  int i = debug(head->left, count);
-  int j = debug(head->right, count);
-  
-  if(i == j && i != -1) {
-    return i;
-  }
-  return -1;
-  
-}
-
-
-
-
+int debug(node* head, int count);
 
 //main function
 int main() {
-  srand(time(NULL));
+  cout << "Welcome to red black tree. This is an advanced version of binary search tree because it self balances. Please enter one of the following commands: ADD READ PRINT DELETE TEST HELP QUIT" << endl;
+
   //Node pointer for the top
   node* head = NULL;
-  int size = 10;
-  cin >> size;
-
-
-  //test = search(head, 10);
-      callDelete(head, rand()%size);
-      if(debug(head, 0) == -1) {
-	cout << "END BECAUSE OF DEBUG ERROR" << endl;
-	return 1;
-      }
   
   //Loop for the program to keep going
   char input[20];
@@ -114,11 +83,23 @@ int main() {
     else if(strcmp(input, "PRINT") == 0) {
       print(head, 0);
     }
+    //If the user says delete, we can delete a node
     else if(strcmp(input, "DELETE") == 0) {
-      cout << "What is the number you want to delete? " << endl;
+      cout << "What is the number you want to delete? ";
       int inputNumber;
       cin >> inputNumber;
+      cin.get();
       callDelete(head, inputNumber);
+    }
+    //If the user doesn't trust the procces, they can check if the tree is balanced(at user command)
+    else if(strcmp(input, "TEST") == 0) {
+      //test = search(head, 10);
+      if(debug(head, 0) == -1) {
+	cout << "Test failed. Tree isn't balanced" << endl;
+      }
+      else {
+	cout << "Test passed. Tree is balanced" << endl;
+      }
     }
     //If the user wants us to read from a file, we ask for the file name and read from the file, one number at a time adding to our red-black tree
     else if(strcmp(input, "READ") == 0) {
@@ -127,7 +108,7 @@ int main() {
       char fileName[100];
       cin.get(fileName, 100);
       cin.get();
-    //Sets up file
+      //Sets up file
       ifstream file;
       file.open(fileName);
       //Goes through the file and inserts everything into the heap
@@ -136,18 +117,48 @@ int main() {
       }
       file.close();
     }
+    //If user says quit, we quit
+    else if(strcmp(input, "QUIT") == 0) {
+      cout << "Sorry to see you go. NOW GET OUT OF MY FACE I AM BREAKING UP WITH YOU" << endl;
+      cout << "Sike" << endl;
+      break;
+    }
+    //If user says help, we help them
+    else if(strcmp(input, "HELP") == 0) {
+      cout << "Here are the commands" << endl;
+      cout << "ADD - you can add a number to the tree using the console\nREAD - you can read in a file and put the numbers from the file into the tree\nPRINT - prints the tree\nDELETE - you can delete a number from the tree\nTest - you can tell the program to check if the tree is balanced (meaning the same number of black nodes in every chain)\nHELP - prints help commands\nQUIT - quits the program" << endl;
+    }
     else {
       cout << "Invalid command" << endl;
     }
   }
 }
 
+//Recursive function to check if the tree is balanced by counting black nodes
+int debug(node* head, int count) {
+  if(head == NULL) {
+    return count;
+  }
+  if(getColor(head) == BLACK) {
+    count++;
+  }
+  int i = debug(head->left, count);
+  int j = debug(head->right, count);
+
+  if(i == j && i != -1) {
+    return i;
+  }
+  return -1;
+  
+}
+
+//This function deletes a node by finding its parent and setting the parents child in that direction to the current node's child (we assume the node we're trying to delete only has one child)
 bool deleteNode(node* current) {
-  cout << "in delete node" << endl;
+  //If the current is null, then we have a problem
   if(current == NULL) {
-    cout << "P1" << endl;
     return false;
   }
+  //We find the child of our current node
   node* child = NULL;
   if(current->right != NULL) {
     child = current->right;
@@ -156,75 +167,51 @@ bool deleteNode(node* current) {
     child = current->left;
   }
   
-  
-  cout << "P2" << endl;
+  //We set the parent's child to the child of the current node's child
   if(getSide(current, current->parent) == RIGHT) {
-    cout << "P3" << endl;
     current->parent->right = child;
-    cout << "P4" << endl;
   }
   else {
-    cout << "P5" << endl;
     current->parent->left = child;
-    cout << "P6" << endl;
   }
   
-  //cout << "Before delete" << endl;
   //delete current;
-  //cout << "After delete" << endl;
   return true;
 }
 
-
-
+//Funcion to fix the tree if we have a double black node (terminology refering to video linked at the top)
+//head is the head, doubleblack is our current node, and toDelete tells us if we should or shouldn't delete the node
 void doubleBlackFix(node* &head, node* doubleBlack, bool toDelete) {
-  cout << "in double black fix" << endl;
 
-/*
-Case 1: Only one without mirror image
-Case 2->3
-Case 3->4
-Case 4->terminal
-Case 5->6
-Case 6->terminal
+  /*
+    A listing of the cases and what happens after the cases
+    Case 1: Only one without mirror image
+    Case 2->3
+    Case 3->4
+    Case 4->terminal
+    Case 5->6
+    Case 6->terminal
+    
+  */
 
-*/
-  
-  cout << "Before case 1" << endl;
+  //If the head is the double black, we check if we have to delete it, and if we don't then we don't do anything else
   if(head == doubleBlack) {
     if(toDelete) {
       deleteNode(doubleBlack);
     }
     return;
   }
-  print(head, 0);
-  cout << "before setting family" << endl;
+
+  //Sets parent, sibling, and newphew nodes to make our life easier
   node* parent = doubleBlack->parent;
-  cout << "Sibling" << endl;
   node* sibling = getSibling(doubleBlack);
-  cout << "newphewright" << endl;
-  node* newphewRight = getSibling(doubleBlack)->right;
-  cout << "newpgew left" << endl;
-  node* newphewLeft = getSibling(doubleBlack)->left;
-  cout << "AFTER SETTING FAMILY" << endl;
-  
-  cout << "THIS " << doubleBlack->data << endl << endl << endl;
-
-  cout <<"parent"<< getColor(parent) << endl;
-  cout <<"siblin"<< getColor(sibling) << endl;
-  cout <<"newp right"<< getColor(newphewRight) << endl;
-  cout <<"newp left"<< getColor(newphewLeft) << endl;
-  cout <<"Black"<< BLACK << endl;
-  
-
-
-  
-  
-  //All the following are for one direction
-  if(getSide(doubleBlack, doubleBlack->parent) == LEFT) {
-    print(head, 0);
+  node* nephewRight = getSibling(doubleBlack)->right;
+  node* nephewLeft = getSibling(doubleBlack)->left;
     
-    cout << "In first mirror set of cases" << endl;
+  
+  //This is for all the cases where our double black node is the left sibling
+  if(getSide(doubleBlack, doubleBlack->parent) == LEFT) {
+
     /*
       Case: 2
       Parent: Black
@@ -232,10 +219,7 @@ Case 6->terminal
       NephewRight: Black
       NephewLeft: Black
     */
-    
-    cout << "Before Case 2" << endl;
-    if(getColor(parent) == BLACK && getColor(sibling) == RED && getColor(newphewRight) == BLACK && getColor(newphewLeft) == BLACK) {
-      cout << "In case 2f" << endl;
+    if(getColor(parent) == BLACK && getColor(sibling) == RED && getColor(nephewRight) == BLACK && getColor(nephewLeft) == BLACK) {
       if(head == parent) {
 	head = sibling;
 	sibling->parent = NULL;
@@ -252,20 +236,16 @@ Case 6->terminal
       parent->color = RED;
       sibling->color = BLACK;
 
-      if(newphewLeft != NULL) {
-	newphewLeft->parent = parent;
+      if(nephewLeft != NULL) {
+	nephewLeft->parent = parent;
       }
       sibling->left = parent;
       parent->parent = sibling;
-      parent->right = newphewLeft;
+      parent->right = nephewLeft;
       
-      //call fixdoubleblack from node toDelete = true
       doubleBlackFix(head, doubleBlack, toDelete);
       return;
     }
-    
-    
-    
     
     /*
       Case: 3
@@ -274,21 +254,13 @@ Case 6->terminal
       NephewRight: Black
       NephewLeft: Black
     */
-    
-    cout << "Before case 3" << endl;
-    if(getColor(parent) == BLACK && getColor(sibling) == BLACK && getColor(newphewRight) == BLACK && getColor(newphewLeft) == BLACK) {
-      cout << "IN case 34" << endl;
-      cout << sibling->data << endl;;
-      cout << doubleBlack->data << endl;
-
+    if(getColor(parent) == BLACK && getColor(sibling) == BLACK && getColor(nephewRight) == BLACK && getColor(nephewLeft) == BLACK) {
+  
       sibling->color = RED;
       //if delete, we can delete the doubleBlack
       //Call fix doublblac from doubleBlack->parent with toDelete = false
       if(toDelete) {
-	cout << "DSFDSfasdjfnjskdlfkjsdhflkjsadhflkasdhfkljsadhfkjsdhfkjsdhfjksdhfjkdsnjcnsdcfjsdhflkjsdhfkjsadncjksdfjksdlhfkjsdhjkcndskjfhjdskfhkdsjlfn" << endl;
-	print(head, 0);
 	deleteNode(doubleBlack);
-	print(head, 0);
       }
       doubleBlackFix(head, doubleBlack->parent, false);
       return;
@@ -302,41 +274,32 @@ Case 6->terminal
       NephewLeft: Black
     */
     
-    cout << "Before Case 4" << endl;
     if(getColor(parent) == RED && getColor(sibling) == BLACK) {
-      if(getColor(newphewRight) == BLACK && getColor(newphewLeft) == BLACK) {
-	cout << "In case 4" << endl;
+      if(getColor(nephewRight) == BLACK && getColor(nephewLeft) == BLACK) {
 	sibling->color = RED;
-	cout << "4a" << endl;
 	parent->color = BLACK;
-	cout << "4b" << endl;
 	if(toDelete) {
-	  cout << "In toDelete call" << endl;
 	  deleteNode(doubleBlack);
 	}
-	cout << "4c" << endl;
 	return;
-	cout << "ASSADA" << endl;
       }
-      else if(getColor(newphewRight) == BLACK && getColor(newphewLeft) == RED) {
-        cout << "In case 4 part two" << endl;
-        parent->right = newphewLeft;
-        newphewLeft->parent = parent;
-        node* child = newphewLeft->right;
+      else if(getColor(nephewRight) == BLACK && getColor(nephewLeft) == RED) {
+        parent->right = nephewLeft;
+        nephewLeft->parent = parent;
+        node* child = nephewLeft->right;
         if(child != NULL) {
           child->parent = sibling;
         }
         sibling->left = child;
-        sibling->parent = newphewLeft;
-        newphewLeft->right = sibling;
+        sibling->parent = nephewLeft;
+        nephewLeft->right = sibling;
 
-        newphewLeft->color = BLACK;
+        nephewLeft->color = BLACK;
         sibling->color = RED;
 	doubleBlackFix(head, doubleBlack, toDelete);
         return;
       }
     }
-
 
     /*
       Case: 5
@@ -345,28 +308,21 @@ Case 6->terminal
       NephewRight: Black
       NephewLeft: Red
     */
-    
-    
-    cout << "Before case 5" << endl;
-    if(getColor(parent) == BLACK && getColor(sibling) == BLACK && getColor(newphewRight) == BLACK && getColor(newphewLeft) == RED) {
-      cout << "In case 5" << endl;
-      node* n4 = newphewLeft->right;
-      parent->right = newphewLeft;
-      newphewLeft->parent = parent;
-      sibling->parent = newphewLeft;
+    if(getColor(parent) == BLACK && getColor(sibling) == BLACK && getColor(nephewRight) == BLACK && getColor(nephewLeft) == RED) {
+      node* n4 = nephewLeft->right;
+      parent->right = nephewLeft;
+      nephewLeft->parent = parent;
+      sibling->parent = nephewLeft;
       sibling->left = n4;
-      newphewLeft->right = sibling;
+      nephewLeft->right = sibling;
       if(n4 != NULL) {
 	n4->parent = sibling;
       }
-      
-      newphewLeft->color = BLACK;
+      nephewLeft->color = BLACK;
       sibling->color = RED;
-      //Call fixdouble black with the same thing
       doubleBlackFix(head, doubleBlack, toDelete);
       return;
     }
-    
     
     /*
       Case: 6
@@ -375,10 +331,7 @@ Case 6->terminal
       NephewRight: Blue
       NephewLeft: Red
     */
-    print(head, 0);
-    cout << "Before case 6a" << endl;
-    if(getColor(sibling) == BLACK && getColor(newphewRight) == RED) {
-      cout << "In case 6" << endl;
+    if(getColor(sibling) == BLACK && getColor(nephewRight) == RED) {
       if(parent != head) {
 	sibling->parent = parent->parent;
 	if(getSide(parent, parent->parent) == LEFT) {
@@ -389,36 +342,28 @@ Case 6->terminal
 	}
       }
       else {
-	cout << "Changing Head" << endl;
 	head = sibling;
 	sibling->parent = NULL;	
       }
     
       parent->parent = sibling;
-      parent->right = newphewLeft;
-      cout << "p1" << endl;
-      if(newphewLeft != NULL) {
-	newphewLeft->parent = parent;
+      parent->right = nephewLeft;
+      if(nephewLeft != NULL) {
+	nephewLeft->parent = parent;
       }
-      cout << "p1a" << endl;
       sibling->left = parent;
-      cout << "p1b" << endl;
-      newphewRight->color = BLACK;
-      cout << "p2" << endl;
+      nephewRight->color = BLACK;
       sibling->color = parent->color;
       parent->color = BLACK;
       
       if(toDelete) {
 	deleteNode(doubleBlack);
       }
-    
       return;
     }
   }
   
   else {
-    /*IMPORTANT: NOT DONE YET (STILL HAVE TO REVERSE STUFF)*/
-    cout << "In else case" << endl;
     
     /*
       Case: 2
@@ -427,42 +372,33 @@ Case 6->terminal
       NephewRight: Black
       NephewLeft: Black
     */
-    cout << "Before Case 2" << endl;
-    if(getColor(parent) == BLACK && getColor(sibling) == RED && getColor(newphewRight) == BLACK && getColor(newphewLeft) == BLACK) {
-      cout << "In case 2b" << endl;
+    if(getColor(parent) == BLACK && getColor(sibling) == RED && getColor(nephewRight) == BLACK && getColor(nephewLeft) == BLACK) {
       if(head == parent) {
-	cout << "P1" << endl;
-        head = sibling;
+	head = sibling;
         sibling->parent = NULL;
       }
       else {
-	cout << "P2" << endl;
-        sibling->parent = parent->parent;
+	sibling->parent = parent->parent;
         if(getSide(parent, parent->parent) == LEFT) {
-	  cout << "P3" << endl;
-          parent->parent->left = sibling;
+	  parent->parent->left = sibling;
 	}
         else {
-	  cout << "P4" << endl;
-          parent->parent->right = sibling;
+	  parent->parent->right = sibling;
         }
       }
-      cout << "P5" << endl;
       parent->color = RED;
       sibling->color = BLACK;
 
-      if(newphewRight != NULL) {
-	newphewRight->parent = parent;
+      if(nephewRight != NULL) {
+	nephewRight->parent = parent;
       }
       sibling->right = parent;
       parent->parent = sibling;
-      parent->left = newphewRight;
-      print(head, 0);
+      parent->left = nephewRight;
       //call fixdoubleblack from node toDelete = true
       doubleBlackFix(head, doubleBlack, toDelete);
       return;
     }
-
 
     /*
       Case: 3
@@ -471,13 +407,8 @@ Case 6->terminal
       NephewRight: Black
       NephewLeft: Black
     */
-    cout << "Before case 3" << endl;
-    if(getColor(parent) == BLACK && getColor(sibling) == BLACK && getColor(newphewRight) == BLACK && getColor(newphewLeft) == BLACK) {
-      cout << "IN case 3f" << endl;
-      cout << doubleBlack->data << endl;
-      cout << sibling->data << endl;
+    if(getColor(parent) == BLACK && getColor(sibling) == BLACK && getColor(nephewRight) == BLACK && getColor(nephewLeft) == BLACK) {
       sibling->color = RED;
-      print(head, 0);
       //if delete, we can delete the doubleBlack
       //Call fix doublblac from doubleBlack->parent with toDelete = false
       if(toDelete) {
@@ -493,39 +424,33 @@ Case 6->terminal
       Sibling: Black
       NephewRight: Black or Red
       NephewLeft: Black
-    */
-    
-    cout << "Before case 4" << endl;
+    */    
     if(getColor(parent) == RED && getColor(sibling) == BLACK) {
-      if(getColor(newphewRight) == BLACK && getColor(newphewLeft) == BLACK) {
-	cout << "In case 4" << endl;
+      if(getColor(nephewRight) == BLACK && getColor(nephewLeft) == BLACK) {
 	sibling->color = RED;
 	parent->color = BLACK;
 	if(toDelete) {
-	  cout << "SDFadsfsdjflsdjflsjdflksjdfkjsdlkfjsdlkfjsdlkjflkdsjflkdsjfkldsjfkldjfkdjfklsdjfkmckldsklfksdlmcklsdjfklsdmckldsjfkldsmckdsjfkljsdkmcskdfjsdlkjmfjl" << endl;
 	  deleteNode(doubleBlack);
 	}
 	return; 
       }
-      else if(getColor(newphewRight) == RED && getColor(newphewLeft) == BLACK) {
-	cout << "In case 4 part two" << endl;
-	parent->left = newphewRight;
-	newphewRight->parent = parent;
-	node* child = newphewRight->left;
+      else if(getColor(nephewRight) == RED && getColor(nephewLeft) == BLACK) {
+	parent->left = nephewRight;
+	nephewRight->parent = parent;
+	node* child = nephewRight->left;
 	if(child != NULL) {
 	  child->parent = sibling;
 	}
 	sibling->right = child;
-	sibling->parent = newphewRight;
-	newphewRight->left = sibling;
+	sibling->parent = nephewRight;
+	nephewRight->left = sibling;
 	
-	newphewRight->color = BLACK;
+	nephewRight->color = BLACK;
 	sibling->color = RED;
 	doubleBlackFix(head, doubleBlack, toDelete);
 	return;
       }
     }
-    
     
     /*
       Case: 5
@@ -534,28 +459,23 @@ Case 6->terminal
       NephewRight: Red
       NephewLeft: Black
     */
-    
-    
-    cout << "Before case 5" << endl;
-    if(getColor(parent) == BLACK && getColor(sibling) == BLACK && getColor(newphewLeft) == BLACK && getColor(newphewRight) == RED) {
-      cout << "in case 5" << endl;
-      node* n4 = newphewRight->left;
-      parent->left = newphewRight;
-      newphewRight->parent = parent;
-      sibling->parent = newphewRight;
+    if(getColor(parent) == BLACK && getColor(sibling) == BLACK && getColor(nephewLeft) == BLACK && getColor(nephewRight) == RED) {
+      node* n4 = nephewRight->left;
+      parent->left = nephewRight;
+      nephewRight->parent = parent;
+      sibling->parent = nephewRight;
       sibling->right = n4;
-      newphewRight->left = sibling;
+      nephewRight->left = sibling;
       if(n4 != NULL) {
         n4->parent = sibling;
       }
       
-      newphewRight->color = BLACK;
+      nephewRight->color = BLACK;
       sibling->color = RED;
       //Call fixdouble black with the same thing
       doubleBlackFix(head, doubleBlack, toDelete);
       return;
     }
-    
     
     /*
       Case: 6
@@ -564,10 +484,7 @@ Case 6->terminal
       NephewRight: Red
       NephewLeft: Blue
     */
-
-    cout << "Before case 6" << endl;
-    if(getColor(sibling) == BLACK && getColor(newphewLeft) == RED) {
-      cout << "In case 6" << endl;
+    if(getColor(sibling) == BLACK && getColor(nephewLeft) == RED) {
       if(parent != head) {
         sibling->parent = parent->parent;
         if(getSide(parent, parent->parent) == RIGHT) {
@@ -578,67 +495,53 @@ Case 6->terminal
         }
       }
       else {
-	cout << "Change head" << endl;
         head = sibling;
 	sibling->parent = NULL;
       }
 
       parent->parent = sibling;
-      parent->left = newphewRight;
-      if(newphewRight != NULL) {
-	newphewRight->parent = parent;
+      parent->left = nephewRight;
+      if(nephewRight != NULL) {
+	nephewRight->parent = parent;
       }
       sibling->right = parent;
-      newphewLeft->color = BLACK;
+      nephewLeft->color = BLACK;
       sibling->color = parent->color;
       parent->color = BLACK;
       if(toDelete) {
         deleteNode(doubleBlack);
       }
-      
       return;
     }
   }
-  cout << "End of fixdoublblack function" << endl;
 }
-  
-  
 
-  
-  
-
+//Function to start off the delete (if there isn't a double black, the deletion also finishes here
 void callDelete(node* &head, int element) {
+  //If the head dis null, that means the tree is empty so we return
   if(head == NULL) {
-    cout << "The tree is empty" << endl;
     return;
   }
   
-  node* elementNode = search(head, element);
-  print(head, 0);
+  node* elementNode = search(head, element); //The node containing the number
+
+  //If the elementNode is null it means there isn't a node with the number so we return
   if(elementNode == NULL) {
-    cout << "Number not found "<< element << endl;
     return;
   }
 
+  //If the only node is the head and we're trying to delete the head, we just set head to NULL, delete the node and return
   if(elementNode == head && getNumberOfChildren(elementNode) == 0) {
     head = NULL;
     delete elementNode;
     return;
   }
   
-  //print(head, 0);
-  cout << "ELEMENT: " << element << endl; 
-  node* toDelete = nodeToDelete(head, element);
-  cout << "callDelete after initializing" << endl;
-  if(toDelete != NULL) {
-    cout << "TO DELETE: " << toDelete->data << endl;
-    cout << "To Delete Parent: " << toDelete->parent->data << endl;
-  }
-  //WORKS
-  cout << "Before no red child" << endl;
+  node* toDelete = nodeToDelete(head, element);//Todelete stores the node we are trying to delete (after we swap the values, the one we're trying to delete is the one thats node->right->left->left->left...
+
   //If the node we want to delete is red and doesn't have two children (it cannot have just one child)
   if(getNumberOfChildren(elementNode) == 0 && getColor(elementNode) == RED) {
-    cout << "In no red child" << endl;
+    //We just delete the node
     if(getSide(elementNode, elementNode->parent) == RIGHT) {
       elementNode->parent->right = NULL;
       //delete elementNode;
@@ -652,15 +555,16 @@ void callDelete(node* &head, int element) {
   }
 
 
-  //WORKS
-  cout << "Before less than two black children: " << getNumberOfChildren(elementNode) << endl;
+  //If the node is black and there aren't two kids, we go into here
   if((getNumberOfChildren(elementNode) != 2 && getColor(elementNode) == BLACK) /*&& (getColor(elementNode->right) == BLACK) && (getColor(elementNode->left) == RED)*/) {
-    cout << "In less than two black children" << endl;
 
+    //If there are zero children, we call the doubleBlackFix function, telling it to delete the current node
     if(getNumberOfChildren(elementNode) == 0) {
       doubleBlackFix(head, elementNode, true);
       return;
     }
+
+    //Otherwise, we create a child node and set it to the 1 child of the Black Node we want to delete
     node* child;
     if(elementNode->right != NULL) {
       child = elementNode->right;
@@ -668,64 +572,54 @@ void callDelete(node* &head, int element) {
     else {
       child = elementNode->left;
     }
-    
+
+    //If the element isn't the head, we go into this loop
     if(elementNode != head) {
-      cout << "P0" << endl;
+
+      //If the element is the right child we do this, or we do the same thing except in reverse
       if(getSide(elementNode, elementNode->parent) == RIGHT) {
-	cout << "P1" << endl;
-	
+
+	//We delete the current node
 	elementNode->parent->right = child;
 	child->parent = elementNode->parent;
+	//If the child is red, we just make it black and its fixed
 	if(getColor(child) == RED) {
 	  child->color = BLACK;
 	  return;
 	}
+	//Other wise, we have to call the doubleBLackFix method
 	else {
-	  //Call function to fix double black with elementNode->parent
-	  doubleBlackFix(head, child, true);
-	  //delete elementNode;
+	  doubleBlackFix(head, child, false);
 	  return;
 	}
       }
+      //We do the same thing except in reverse for the opposite case
       else {
-	cout << "P2" << endl;
 	elementNode->parent->left = child;
 	child->parent = elementNode->parent;
-	//Call function to fix double black with elementNode->parent
-	print(head, 0);
 	if(getColor(child) == RED) {
 	  child->color = BLACK;
-	  //delete elementNode;
 	  return;
 	}
 	else {
-	  doubleBlackFix(head, child, true);
-	  //delete elementNode;
+	  doubleBlackFix(head, child, false);
 	  return;
 	}
       }
-      cout << "P3" << endl;
     }
     else {
-      cout << "P4" << endl;
       head = child;
       head->color = BLACK;
-      cout << "P5" << endl;
       child->parent = NULL;
-      cout << "P6" << endl;
       return;
     }
   }
 
-  
-  cout << "before changing data" << endl;
+  //If none of that happens, then we set the element node's data to what the next biggest one is
   elementNode->data = toDelete->data;
-  cout << "after changing data" << endl;
   
-
-  cout << "Before black with one red child" << endl;
+  //If the number of children of toDelte is 1, we do the same thing we did with element node in the last if statement
   if(getNumberOfChildren(toDelete) == 1) {
-    cout << "WE IN" << endl;
     node* child;
     if(toDelete->right != NULL) {
       child = toDelete->right;
@@ -746,57 +640,27 @@ void callDelete(node* &head, int element) {
     return;
   }
 
-
-
-
-
-
-
-
-  
-  cout << "Before Bottom and Red" << endl;
-  print(head, 0);
   //If the node we are deleting (bottom one) is RED, we just delete it
   if(getColor(toDelete) == RED) {
-    cout << "Bottom and Red" << endl;
     
     if(getSide(toDelete, toDelete->parent) == RIGHT) {
-      cout << "P1" << endl;
-      cout << "TDLT" << toDelete->data << endl;
-      cout << "PARENT" << toDelete->parent->data << endl;
       toDelete->parent->right = toDelete->right;
-      cout << "P1b" << endl;
       if(toDelete->right != NULL) {
 	toDelete->right->parent = toDelete->parent;
       }
-      cout << "P1c" << endl;
     }
     else {
-      cout << "P2" << endl;
       toDelete->parent->left = toDelete->right;
-      cout << "P2b" << endl;
       if(toDelete->left != NULL) {
-	cout << "P3" << endl;
 	toDelete->left->parent = toDelete->parent;
       }
-      cout << "P4" << endl;
     }
-    cout << "P5" << endl;
-    print(head, 0);
-    cout << "P6" << endl;
-    //delete toDelete;
-    cout << "After Delete" << endl;
     return;
   }
-  cout << "After Bottom and Red" << endl;
-  print(head, 0);
-  cout << "After Print command" << endl;
 
   //If the node to delete is black and the child of it is red, we move the red up and change the color to black
   if(getColor(toDelete) == BLACK && getColor(toDelete->right) == RED) {
-    cout << "In this command" << endl;
     if(toDelete->data >= toDelete->parent->data) {
-      cout << "P1" << endl;
       toDelete->parent->right = toDelete->right;
       if(toDelete->right != NULL) {
 	toDelete->right->color = BLACK;
@@ -804,135 +668,31 @@ void callDelete(node* &head, int element) {
       }
     }
     else {
-      cout << "P2" << endl;
       toDelete->parent->left = toDelete->right;
-      cout << "P3" << endl;
       if(toDelete->left != NULL) {
-	cout << "P5" << endl;
 	toDelete->left->color = BLACK;
-	cout << "P4" << endl;
 	toDelete->left->parent = toDelete->parent;
       }
     }
-    cout << "P5" << endl;
     //delete toDelete;
     return;
   }
 
-  cout << "Between these two commands" << endl;
-  
-  if(getColor(toDelete) == BLACK && getColor(toDelete->right) == BLACK) {
-    cout << "BLACK PARENT BLACK CHILD DOUBLE BLACK" << endl;
-  }
-  cout << "End of call delete function" << endl;
+  //If none of these cases work, we go into the doubleBlackFix cases
   doubleBlackFix(head, toDelete, true);
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+//This returns the side that the child is of the parent
 int getSide(node* child, node* parent) {
   if(parent->right == child) {
-    cout << "Side: right" << endl;
     return RIGHT;
   }
   else {
-    cout << "side: left" << endl;
     return LEFT;
   }
 }
 
-
+//This returns the number of children of a node
 int getNumberOfChildren(node* current) {
   int returnValue = 2;
   if(current->left == NULL) {
@@ -944,9 +704,7 @@ int getNumberOfChildren(node* current) {
   return returnValue;
 }
 
-
-
-
+//This finds the node we have to delete (it finds the next biggest node after the first node
 node* nodeToDelete(node* head, int element) {
   node* current = search(head, element);
   if(current->right == NULL) {
@@ -960,7 +718,6 @@ node* nodeToDelete(node* head, int element) {
   }
   return current;
 }
-
 
 //Search Function
 node* search(node* head, int element) {
@@ -982,7 +739,6 @@ node* search(node* head, int element) {
   }
 }
 
-
 //This function fixes the tree
 void fixTree(node* &head, node* current) {
   //If our node is the first root/top/head node, we make it black 
@@ -994,9 +750,7 @@ void fixTree(node* &head, node* current) {
 
   //Parent and uncle are both red
   //This is case 1
-  cout << "BC 1" << endl;
   if(getColor(current->parent) == RED && getColor(getUncle(current)) == RED) {
-    cout << "IN 1" << endl;
     current->parent->color = BLACK;
     getUncle(current)->color = BLACK;
     current->parent->parent->color = RED;
@@ -1006,9 +760,7 @@ void fixTree(node* &head, node* current) {
   
   //Uncle is black and parent is red
   //This is case 2/3
-  cout << "BC 2/3" << endl;
   if((getColor(current->parent) == RED) && (getColor(getUncle(current)) == BLACK)) {
-    cout << "In 2/3" << endl;
     /*We go into this if statemenet if we form a triangle like:
            G(B)
        P(R)
@@ -1017,7 +769,6 @@ void fixTree(node* &head, node* current) {
        Case 2
      */
     if(current->data >= current->parent->data && current->parent->parent->data >= current->parent->data) {
-      cout << "P1" << endl;
       node* parent = current->parent;
       node* grandparent = current->parent->parent;
 
@@ -1029,16 +780,15 @@ void fixTree(node* &head, node* current) {
       fixTree(head, parent);
       return;
     }
+    
     /*This is if the triangle is the other way around
       G(B)
            P(R)
       C(R)
 
       Case 2
-     */
-    
+    */  
     else if(current->data < current->parent->data && current->parent->parent->data < current->parent->data) {
-      cout << "P2" << endl;
       node* parent = current->parent;
       node* grandparent = current->parent->parent;
       node* swapChild = current->right;
@@ -1054,8 +804,7 @@ void fixTree(node* &head, node* current) {
       fixTree(head, parent);
       return;
     }
-
-
+    
     /*THis is if we form a line as follows
                  G (B)
             P(R)
@@ -1064,9 +813,7 @@ void fixTree(node* &head, node* current) {
       Case 3
       The letter after the variable (like the D in siblingD) is refering to the example in video linked at the very top that I used as reference 
      */
-
     if(current->data >= current->parent->data && current->data >= current->parent->parent->data) {
-      cout << "p4" << endl;
       node* siblingD = getSibling(current);
       node* grandparentB = current->parent->parent;
       node* parentA = current->parent;
@@ -1093,9 +840,8 @@ void fixTree(node* &head, node* current) {
       }
       parentA->color = BLACK;
       grandparentB->color = RED;
-      print(head, 0);
-      cout << "D" << endl;
     }
+    
     /*
       This is if we form a line as follows
       G (B)
@@ -1106,7 +852,6 @@ void fixTree(node* &head, node* current) {
        The letter after the variable (like the D in siblingD) is refering to the example in video linked at the very top that I used as reference
      */
     if(current->data < current->parent->data && current->data < current->parent->parent->data) {
-      cout << "P5" << endl;
       node* siblingD = getSibling(current);
       node* grandparentB = current->parent->parent;
       node* parentA = current->parent;
