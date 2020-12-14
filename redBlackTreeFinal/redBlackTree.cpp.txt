@@ -87,19 +87,54 @@ int main() {
   node* head = NULL;
   int size = 10;
   cin >> size;
+  node* test;
 
-
-  //test = search(head, 10);
+  for(int j = 0; j < size; j++) {
+    cout << "J-loop" << endl;
+    for(int i = 0; i < size; i++) {
+      cout << "i loop" << endl;
+      print(head, 0);
+      fixTree(head, callInsert(head, i));
+OB      print(head, 0);
+OB    }
+OB    //node* test = search(head, 10);
+OB    print(head, 0);
+OB    //cin.get();
+    //for(int k = j; k <= j+size; k++) {
+    while(head != NULL) {
+OB      cout << "k loop" << endl;
+      //test = search(head, 10);
       callDelete(head, rand()%size);
-      if(debug(head, 0) == -1) {
+      print(head, 0);
+OB      if(debug(head, 0) == -1) {
 	cout << "END BECAUSE OF DEBUG ERROR" << endl;
-	return 1;
+OB	return 1;
       }
-  
+      //cin.get();
+      /*if(getSide(test, test->parent) == RIGHT) {
+	cout << "T" << test->data << endl;
+OB	cout << "TP" << test->parent->data << endl;
+	cout << "TPT" << test->parent->right->data << endl;
+	if(test->data != test->parent->right->data) {
+	  return 0;
+	}
+OB      }
+      else {
+	cout << "T" << test->data << endl;
+	cout << "TP" << test->parent->data << endl;
+	cout << "TPT" << test->parent->left->data << endl;
+	if(test->data != test->parent->left->data) {
+	  return 0;
+	}
+	}*/
+    }
+    //print(head, 0);
+  }
+  /*
   //Loop for the program to keep going
   char input[20];
   while(true) {
-    cout << "> ";
+OA    cout << "> ";
     cin.get(input, 20);
     cin.get();
     //If the user says add, then we get an input and we simply add it to our binary tree
@@ -114,73 +149,64 @@ int main() {
     else if(strcmp(input, "PRINT") == 0) {
       print(head, 0);
     }
-    else if(strcmp(input, "DELETE") == 0) {
-      cout << "What is the number you want to delete? " << endl;
-      int inputNumber;
-      cin >> inputNumber;
-      callDelete(head, inputNumber);
-    }
     //If the user wants us to read from a file, we ask for the file name and read from the file, one number at a time adding to our red-black tree
     else if(strcmp(input, "READ") == 0) {
-      int number;
-      cout << "What is the file name? " << endl;
-      char fileName[100];
-      cin.get(fileName, 100);
-      cin.get();
-    //Sets up file
-      ifstream file;
-      file.open(fileName);
-      //Goes through the file and inserts everything into the heap
-      while (file >> number) {
-	fixTree(head, callInsert(head, number));
-      }
-      file.close();
-    }
-    else {
-      cout << "Invalid command" << endl;
-    }
-  }
+    int number;
+OA    cout << "What is the file name? " << endl;
+    char fileName[100];
+    cin.get(fileName, 100);
+    cin.get();
+OA    //Sets up file
+    ifstream file;
+    file.open(fileName);
+    //Goes through the file and inserts everything into the heap
+OA    while (file >> number) {
+    fixTree(head, callInsert(head, number));
+OA    }
+OA    file.close();
+OA    }
+    }*/
 }
 
-bool deleteNode(node* current) {
-  cout << "in delete node" << endl;
-  if(current == NULL) {
+OAbool deleteNode(node* current) {
+OA  cout << "in delete node" << endl;
+OA  if(current == NULL) {
     cout << "P1" << endl;
-    return false;
-  }
+OA    return false;
+OA  }
   node* child = NULL;
   if(current->right != NULL) {
     child = current->right;
-  }
+OA  }
   else {
-    child = current->left;
+OA    child = current->left;
   }
   
   
-  cout << "P2" << endl;
+OA  cout << "P2" << endl;
   if(getSide(current, current->parent) == RIGHT) {
-    cout << "P3" << endl;
+OA    cout << "P3" << endl;
     current->parent->right = child;
-    cout << "P4" << endl;
+OA    cout << "P4" << endl;
   }
   else {
     cout << "P5" << endl;
-    current->parent->left = child;
+OA    current->parent->left = child;
     cout << "P6" << endl;
-  }
+OA  }
   
-  //cout << "Before delete" << endl;
+OA  //cout << "Before delete" << endl;
   //delete current;
   //cout << "After delete" << endl;
   return true;
-}
+OA}
 
 
 
 void doubleBlackFix(node* &head, node* doubleBlack, bool toDelete) {
   cout << "in double black fix" << endl;
 
-/*
+OA/*
 Case 1: Only one without mirror image
 Case 2->3
 Case 3->4
@@ -285,7 +311,7 @@ Case 6->terminal
       //if delete, we can delete the doubleBlack
       //Call fix doublblac from doubleBlack->parent with toDelete = false
       if(toDelete) {
-	cout << "DSFDSfasdjfnjskdlfkjsdhflkjsadhflkasdhfkljsadhfkjsdhfkjsdhfjksdhfjkdsnjcnsdcfjsdhflkjsdhfkjsadncjksdfjksdlhfkjsdhjkcndskjfhjdskfhkdsjlfn" << endl;
+[O	cout << "DSFDSfasdjfnjskdlfkjsdhflkjsadhflkasdhfkljsadhfkjsdhfkjsdhfjksdhfjkdsnjcnsdcfjsdhflkjsdhfkjsadncjksdfjksdlhfkjsdhjkcndskjfhjdskfhkdsjlfn" << endl;
 	print(head, 0);
 	deleteNode(doubleBlack);
 	print(head, 0);
@@ -558,7 +584,7 @@ Case 6->terminal
     
     
     /*
-      Case: 6
+[I      Case: 6
       Parent: Blue
       Sibling: Black
       NephewRight: Red
@@ -711,7 +737,7 @@ void callDelete(node* &head, int element) {
       head = child;
       head->color = BLACK;
       cout << "P5" << endl;
-      child->parent = NULL;
+[O      child->parent = NULL;
       cout << "P6" << endl;
       return;
     }
