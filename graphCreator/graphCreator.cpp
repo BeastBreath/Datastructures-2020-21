@@ -13,7 +13,7 @@ Just creates a simple graph using user input
 
 using namespace std;
 
-#define SIZE 20
+#define SIZE 21
 
 //struct for the vertex (just has a name)
 struct vertex {
@@ -28,12 +28,15 @@ struct item {
   bool visited;
   vertex* vert;
   int value;
+  int path;
   item() {
+    path = 0;
     visited = false;
     vert = NULL;
     value = numeric_limits<int>::max();
   }
   item(vertex* newVert) {
+    path = 0;
     visited = false;
     vert = newVert;
     value = numeric_limits<int>::max();
@@ -47,20 +50,20 @@ void deleteVertex(vertex** vertexList, int** adjacencyTable);
 void deleteEdge(vertex** vertexList, int** adjacencyTable);
 int getIndex(char* name, vertex** vertexList);
 void print(vertex** vertexList, int** adjacencyTable);
-int callDijkstra(vertex** vertexList, int** adjacencyTable);
-int Dijkstra(item** itemList, int** adjacencyTable, int endIndex);
+void callDijkstra(vertex** vertexList, int** adjacencyTable);
+void Dijkstra(item** itemList, int** adjacencyTable, int endIndex);
 
 //Main method
 int main() {
 
-  cout << "Welcome to graph creator. Type help for help with commands" << endl;
+  cout << "Welcome to graph creator. Type \"HELP\" for help with commands" << endl;
 
   //Creating adjacency table and vertex list and intializing them
   int* adjacencyTable[SIZE];
   vertex* vertexList[SIZE];
-  for(int i = 0; i < SIZE; i++) {
+  for(int i = 1; i < SIZE; i++) {
     adjacencyTable[i] = new int[SIZE];
-    for(int j = 0; j < SIZE; j++) {
+    for(int j = 1; j < SIZE; j++) {
       adjacencyTable[i][j] = -1;
     }
     vertexList[i] = NULL;
@@ -90,10 +93,7 @@ int main() {
       print(vertexList, adjacencyTable);
     }
     else if(strcmp("PATH", input) == 0) {
-      int length = callDijkstra(vertexList, adjacencyTable);
-      if(length != -1) {
-	cout << "The shortest path is: " << length << endl;
-      }
+      callDijkstra(vertexList, adjacencyTable);
     }
     else if(strcmp("HELP", input) == 0) {
       cout << "Here are your commands: " << endl;
@@ -115,7 +115,7 @@ int main() {
 }
 
 //This function calls the dijkstra algorithm
-int callDijkstra(vertex** vertexList, int** adjacencyTable)  {
+void callDijkstra(vertex** vertexList, int** adjacencyTable)  {
   //We get the user input about where to start and end in the next few lines
   cout << "What is the name of the node you want to start at? ";
   char input[20];
@@ -124,7 +124,7 @@ int callDijkstra(vertex** vertexList, int** adjacencyTable)  {
   int startIndex = getIndex(input, vertexList);
   if(startIndex == -1) {
     cout << "Node not found" << endl;
-    return -1;
+    return;
   }
   cout << "What is the name of the node you want to end at? ";
   cin.get(input, 20);
@@ -132,29 +132,54 @@ int callDijkstra(vertex** vertexList, int** adjacencyTable)  {
   int endIndex = getIndex(input, vertexList);
   if(endIndex == -1) {
     cout << "Node not found" << endl;
-    return -1;
+    return;
   }
 
   //We create a new itemList and initialize it using the vertex list
   item* itemList[SIZE];
-  for(int i = 0; i < SIZE; i++) {
+  for(int i = 1; i < SIZE; i++) {
     itemList[i] = new item(vertexList[i]);
   }
   itemList[startIndex]->value = 0;
+  itemList[startIndex]->path = startIndex;
 
-  //Call and return the value from the dijkstra function
-  return Dijkstra(itemList, adjacencyTable, endIndex);
+
   
+  //Call and return the value from the dijkstra function
+  Dijkstra(itemList, adjacencyTable, endIndex);
+
+  item* end = itemList[endIndex];//Store the final item with all the info seperately so its easier to reference
+
+  cout << "The path is: " << endl;
+
+  int path = 0;
+
+  //We reverse the path using another varaible called path
+  while(end->path != 0){
+    path *= 100;
+    path += end->path%100;
+    end->path /= 100;
+  }
+
+  end->path = path;
+
+  //We go by every two digits, and print out the name of the vertex at that location
+  while(end->path != 0) {
+    cout << vertexList[end->path%100]->name << endl;
+    end->path = end->path/100;
+  }
+
+  cout << "The shortest path length is: " << end->value << endl;//WE print out the shortest path
 }
 
 //Dijkstra function
-int Dijkstra(item** itemList, int** adjacencyTable, int endIndex) {
+void Dijkstra(item** itemList, int** adjacencyTable, int endIndex) {
   //Variables for storing the smallest value and index
   int smallValue =  numeric_limits<int>::max();
   int smallIndex = -1;
 
   //We go through the itemList and find the item with the smallest value (or distance to it from the original)
-  for(int i = 0; i < SIZE; i++) {
+  for(int i = 1; i < SIZE; i++) {
     if(itemList[i]->vert != NULL && itemList[i]->value < smallValue && itemList[i]->visited == false) {
       smallValue = itemList[i]->value;
       smallIndex = i;
@@ -163,39 +188,40 @@ int Dijkstra(item** itemList, int** adjacencyTable, int endIndex) {
 
   //If the smallestIndex is -1, that means something went wrong and we return that
   if(smallIndex == -1) {
-    return -1;
+    return;
   }
 
   //If this is the end index, we don't need to keep going
   if(smallIndex == endIndex) {
-    return smallValue;
+    return;
   }
   //We set the visitied variable to true so we don't come back here
   itemList[smallIndex]->visited = true;
 
   //We loop through the column of the adjacency list, and if for any of the vertex's the distance from the current node + the current vertex's value is less than that vertex's, we change that vertex's value
-  for(int i = 0; i < SIZE; i++) {
+  for(int i = 1; i < SIZE; i++) {
     if(adjacencyTable[smallIndex][i] != -1) {
       if((itemList[smallIndex]->value + adjacencyTable[smallIndex][i]) < itemList[i]->value) {
 	itemList[i]->value = itemList[smallIndex]->value + adjacencyTable[smallIndex][i];
+	itemList[i]->path = itemList[smallIndex]->path * 100 + i;//We also change path of the adjacent vertex to the current vertex's path + the adjacent vertex
       }
     }
   }
-  return Dijkstra(itemList, adjacencyTable, endIndex);
+  Dijkstra(itemList, adjacencyTable, endIndex);
 }
 
 //Print command only used for debugging (don't worry about it IGNORE IT)
 void print(vertex** vertexList, int** adjacencyTable) {
-  for(int i = 0; i < SIZE; i++) {
+  for(int i = 1; i < SIZE; i++) {
     if(vertexList[i] != NULL) {
       cout << i << " " << vertexList[i]->name << endl;
     }
   }
   cout << endl;
   bool newLine;
-  for(int i = 0; i < SIZE; i++) {
+  for(int i = 1; i < SIZE; i++) {
     newLine = false;
-    for (int j = 0; j < SIZE; j++) {
+    for (int j = 1; j < SIZE; j++) {
       if(adjacencyTable[i][j] != -1) {
 	cout << adjacencyTable[i][j] << "\t";
 	newLine = true;
@@ -219,7 +245,7 @@ void addVertex(vertex** vertexList) {
   cin.get();
 
   //The next lines figure out where the first empty spot in the array is
-  int index = 0;
+  int index = 1;
   while(index < SIZE && (vertexList[index] != NULL)) {
     index++;
   }
@@ -281,7 +307,7 @@ void deleteVertex(vertex** vertexList, int** adjacencyTable) {
   }
 
   //We go through the adjacency table and set any edge with that vertex on either side to -1
-  for(int i = 0; i < SIZE; i++) {
+  for(int i = 1; i < SIZE; i++) {
     adjacencyTable[index][i] = -1;
     adjacencyTable[i][index] = -1;
   }
@@ -319,7 +345,7 @@ void deleteEdge(vertex** vertexList, int** adjacencyTable) {
 //Gets the index of a vertex based on the name
 int getIndex(char* name, vertex** vertexList) {
   //goes through all the vertex's until we find one
-  for (int i = 0; i < SIZE; i++) {
+  for (int i = 1; i < SIZE; i++) {
     if(vertexList[i] != NULL && strcmp(vertexList[i]->name, name) == 0) {
       return i;
     }
