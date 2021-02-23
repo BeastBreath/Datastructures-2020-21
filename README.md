@@ -1,2 +1,3 @@
 # Datastructures-2020-21
-School Data structure assignments
+
+Programs for the Datastrucers course (CS 162)
