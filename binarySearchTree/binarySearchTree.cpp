@@ -12,6 +12,7 @@ Compile using -D DEBUG if you want to see the debug messages
 #include<iostream>
 #include<cstring>
 #include<fstream>
+#include<array>
 
 //Node struct
 struct node {
@@ -42,6 +43,7 @@ node** search(node* &head, int element);
 void insert(node* &head, int element);
 void deleteElement(node* &head, int element);
 void print(node* root, int size);
+void printDebugStatement(auto);
 
 //Main method
 int main() {
@@ -177,28 +179,20 @@ node** search(node* &head, int element) {
 //Insert function
 //We pass it in by reference, so we can change the pointer thats in the previous node and that way we don't have to store the previous node
 void insert(node* &head, int element) {
-#ifdef DEBUG
-  cout << "IN INSERT" << element << endl;
-#endif
+  printDebugStatement("IN INSERT");
   //if the head is null, we make the previous node's pointer to a new node with the element
   if(head == NULL) {
-#ifdef DEBUG
-    cout << "IN INSERT NULL" << endl;
-#endif
+    printDebugStatement("IN INSERT NULL");
     head = new node(element);
   }
   //if the number at the node is bigger than the element, we use recurssion and insert it into the left tree
   else if(head->data > element) {
-#ifdef DEBUG
-    cout << "IN INSERT data>element" << endl;
-#endif
+    printDebugStatement("IN INSERT data>element");
     insert(head->left, element);
   }
   //Otherwise we insert it into the right tree under that node
   else {
-#ifdef DEBUG
-    cout << "IN INSERT data >=element" << endl;
-#endif
+    printDebugStatement("IN INSERT data>= element");
     insert(head->right, element);
   }
 }
@@ -222,62 +216,44 @@ void deleteElement(node* &headA, int element) {
   if(head == NULL) {
     cout << "Unkown error" << endl;
   }
-#ifdef DEBUG
-  cout << "BREAK POINT 1" << endl;
-#endif
+  printDebugStatement("BREAK POINT 1");
   //If both the children are NULL, we set the pointer to that node to NULL (which sets the parent node's pointer to null
   if(head->right == NULL && head->left == NULL) {
-#ifdef DEBUG
-    cout << "Delete element end" << endl;
-#endif
+    printDebugStatement("Delete element end");
     (*headR) = NULL;
     return;
   }
-#ifdef DEBUG
-  cout << "breakpoint 2" << endl;
-#endif
+  printDebugStatement("breakpoint 2");
   //If the right is null, we just pull up the left into the spot of the node
   if(head->right == NULL) {
-#ifdef DEBUG
-    cout << "RIGHT NULL" << endl;
-#endif
+    printDebugStatement("RIGHT NULL");
     (*headR) = head->left;
     return;
   }
-#ifdef DEBUG
-  cout << "BREAKPOINT 3" << endl;
-#endif
+  printDebugStatement("BREAKPOINT 3");
   //If the left is NULL, we just pull up the right to take the spot of the node
   if(head->left == NULL) {
-#ifdef DEBUG
-    cout << "LEFT NULL" << endl;
-#endif
+    printDebugStatement("LEFT NULL");
     (*headR) = head->right;
     return;
   }
-  #ifdef DEBUG
-  cout << "Breakpoint 4" << endl;
-#endif
+  printDebugStatement("Breakpoint 4");
 
   //If none of this happens, then we want to find the next smallest, and then put that there
   node* replaceElement = head->left;//replaceElement is the node to the left (because the first time we go to the left) We know that this isn't null because of the previous if statements
   node** previous = &(head->left);//Previous is the address of replaceElement, but its the address of the parent node's pointer, so we can directely change the parent node's pointer
-#ifdef DEBUG
-  cout << "Breakpoint 5" << endl;
+  printDebugStatement("Breakpoint 5");
   if(replaceElement == NULL) {
-    cout << "NNNUULLL" << endl;
+    printDebugStatement("NNNUULLL");
   }
-  cout << replaceElement->data << endl;
-#endif
+  printDebugStatement(replaceElement->data);
 
   //We keep going right in the tree until we reach the 'end' which finds the number thats the closest and smaller than the number we are deleting
   while(replaceElement->right != NULL) {
     replaceElement = replaceElement->right;
     previous = &((*previous)->right);
   }
-#ifdef DEBUG
-  cout << (*previous)->data << endl;
-#endif
+  printDebugStatement((*previous)->data);
   (*previous) = ((*previous)->left);//We set the node we're at to the node thats to the left of the one we are at
   (*headR)->data = replaceElement->data;//We don't actually move around the nodes, we just change the data
 }
@@ -306,4 +282,10 @@ void print(node *head, int space)
   
   //Finally we print everything to the left of our node
   print(head->left, space);
+}
+
+void printDebugStatement(auto toPrint) {
+  #ifdef DEBUG
+    cout << toPrint << endl;
+  #endif
 }
